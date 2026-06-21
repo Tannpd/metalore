@@ -133,9 +133,6 @@ export default function App() {
           <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(251, 191, 36, 0.2)' }}>
             <strong>Network:</strong> GenLayer StudioNet
           </span>
-          <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(139, 92, 246, 0.2)' }}>
-            <strong>Contract:</strong> {contractAddress ? `${contractAddress.slice(0, 8)}...${contractAddress.slice(-6)}` : 'Not Configured'}
-          </span>
           {address ? (
             <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(6, 182, 212, 0.2)' }}>
               <strong>Wallet:</strong> {`${address.slice(0, 8)}...${address.slice(-6)}`}
