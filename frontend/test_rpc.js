@@ -5,9 +5,9 @@ async function main() {
   const client = createClient({ chain: studionet });
   try {
     const res = await client.readContract({
-      address: '0xE9724DFab091AC3E6981Bbf495aa207EfA369B25',
-      functionName: 'get_character',
-      args: [0], // check character ID 0
+      address: '0xA3b5EC5F11220b1f685427844d96bA40EedfEac3',
+      functionName: 'get_owner_characters',
+      args: ['0x7dE4ccef0515CB4c7eDa60b9eE0226a21c7F6e83'],
     });
     console.log('Success:', res);
   } catch (err) {
