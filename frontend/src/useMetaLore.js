@@ -14,8 +14,6 @@ function getReadClient() {
 }
 
 function getWriteClient(account) {
-  // If account is a string (Ethereum address from MetaMask), createClient uses window.ethereum provider.
-  // If account is a local account object, it signs locally.
   return createClient({ chain: studionet, account });
 }
 
@@ -35,15 +33,14 @@ export function useMetaLore() {
       setError('');
       if (typeof window !== 'undefined' && window.ethereum) {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const addr = accounts[0];
-        // Pass the address string directly as the account representation.
-        // GenLayer/Viem custom transport will route write calls to window.ethereum.
+        const addr = accounts[0].toLowerCase(); // Convert to lowercase to match str(gl.message.sender_account)
         setAddress(addr);
         setGlAccount(addr);
       } else {
         // Ephemeral local account fallback
         const acct = createAccount();
-        setAddress(acct.address);
+        const addr = acct.address.toLowerCase();
+        setAddress(addr);
         setGlAccount(acct);
       }
     } catch (err) {
