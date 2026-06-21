@@ -73,9 +73,9 @@ class Contract(gl.Contract):
         self.character_latest_feedback[pid] = "A new adventurer is born into the world."
         self.character_latest_lore_url[pid] = ""
 
-        # Update owner character list
+        # Update owner character list using the safe .get() pattern
+        owner_chars_str = self.owner_characters.get(owner_str, "[]")
         try:
-            owner_chars_str = self.owner_characters[owner_str]
             owner_chars = json.loads(owner_chars_str)
         except Exception:
             owner_chars = []
@@ -99,18 +99,18 @@ class Contract(gl.Contract):
           3. Agree on stat boosts and traits using semantic consensus rules.
           4. Update character stats and level up if consensus is reached.
         """
-        # Pre-flight checks
+        # Pre-flight checks using the safe .get() pattern
         if character_id < 0 or character_id >= int(self.total_characters):
             raise UserError("Character does not exist.")
 
-        owner_str = self.character_owners[character_id]
+        owner_str = self.character_owners.get(character_id, "")
         if str(gl.message.sender_account) != owner_str:
             raise UserError("You are not the owner of this character.")
 
         if len(lore_url.strip()) == 0:
             raise UserError("Lore URL cannot be empty.")
 
-        char_name = self.character_names[character_id]
+        char_name = self.character_names.get(character_id, "")
 
         # ── Non-Deterministic Core Logic (Rule 7) ─────────────────────
         def leader_fn() -> str:
@@ -329,14 +329,14 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
         dm_feedback = str(eval_data.get("dm_feedback", "The DM records your adventure."))
 
         # Apply stat boosts with a hard cap of 100 per stat
-        self.stats_strength[character_id] = min(100, int(self.stats_strength[character_id]) + str_g)
-        self.stats_wisdom[character_id]   = min(100, int(self.stats_wisdom[character_id]) + wis_g)
-        self.stats_agility[character_id]  = min(100, int(self.stats_agility[character_id]) + agi_g)
-        self.stats_vitality[character_id] = min(100, int(self.stats_vitality[character_id]) + vit_g)
+        self.stats_strength[character_id] = min(100, int(self.stats_strength.get(character_id, 10)) + str_g)
+        self.stats_wisdom[character_id]   = min(100, int(self.stats_wisdom.get(character_id, 10)) + wis_g)
+        self.stats_agility[character_id]  = min(100, int(self.stats_agility.get(character_id, 10)) + agi_g)
+        self.stats_vitality[character_id] = min(100, int(self.stats_vitality.get(character_id, 10)) + vit_g)
 
         # Append trait if new and valid
         if len(new_trait) > 0:
-            current_traits = self.character_traits[character_id]
+            current_traits = self.character_traits.get(character_id, "")
             if len(current_traits) > 0:
                 # Only append if not already in list
                 traits_list = [t.strip() for t in current_traits.split(",")]
@@ -346,7 +346,7 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
                 self.character_traits[character_id] = new_trait
 
         # Update logs & level
-        new_count = int(self.character_lore_count[character_id]) + 1
+        new_count = int(self.character_lore_count.get(character_id, 0)) + 1
         self.character_lore_count[character_id]      = new_count
         self.character_levels[character_id]          = 1 + (new_count // 2)  # Level up every 2 lore chapters
         self.character_latest_feedback[character_id] = dm_feedback
@@ -364,17 +364,17 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
 
         return json.dumps({
             "id": character_id,
-            "name": self.character_names[character_id],
-            "owner": self.character_owners[character_id],
-            "strength": int(self.stats_strength[character_id]),
-            "wisdom": int(self.stats_wisdom[character_id]),
-            "agility": int(self.stats_agility[character_id]),
-            "vitality": int(self.stats_vitality[character_id]),
-            "level": int(self.character_levels[character_id]),
-            "traits": self.character_traits[character_id],
-            "lore_count": int(self.character_lore_count[character_id]),
-            "latest_feedback": self.character_latest_feedback[character_id],
-            "latest_lore_url": self.character_latest_lore_url[character_id]
+            "name": self.character_names.get(character_id, ""),
+            "owner": self.character_owners.get(character_id, ""),
+            "strength": int(self.stats_strength.get(character_id, 0)),
+            "wisdom": int(self.stats_wisdom.get(character_id, 0)),
+            "agility": int(self.stats_agility.get(character_id, 0)),
+            "vitality": int(self.stats_vitality.get(character_id, 0)),
+            "level": int(self.character_levels.get(character_id, 1)),
+            "traits": self.character_traits.get(character_id, ""),
+            "lore_count": int(self.character_lore_count.get(character_id, 0)),
+            "latest_feedback": self.character_latest_feedback.get(character_id, ""),
+            "latest_lore_url": self.character_latest_lore_url.get(character_id, "")
         })
 
     def get_character_count(self) -> int:
@@ -387,7 +387,4 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
         """
         Returns a JSON list of character IDs owned by the specified owner string.
         """
-        try:
-            return self.owner_characters[owner]
-        except Exception:
-            return "[]"
+        return self.owner_characters.get(owner, "[]")
