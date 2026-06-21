@@ -129,9 +129,12 @@ export default function App() {
         <p className="subtitle">The On-Chain AI RPG Where Storytelling Evolves Your Character</p>
         
         {/* Connection status */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center' }}>
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
           <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(251, 191, 36, 0.2)' }}>
             <strong>Network:</strong> GenLayer StudioNet
+          </span>
+          <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(139, 92, 246, 0.2)' }}>
+            <strong>Contract:</strong> {contractAddress ? `${contractAddress.slice(0, 8)}...${contractAddress.slice(-6)}` : 'Not Configured'}
           </span>
           {address ? (
             <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(6, 182, 212, 0.2)' }}>
@@ -223,7 +226,7 @@ export default function App() {
                       transition: 'all 0.2s'
                     }}
                   >
-                    <div style={{ display: 'flex', justifycontent: 'space-between', alignitems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <strong style={{ fontSize: '1.05rem' }}>{char.name}</strong>
                       <span style={{ fontSize: '0.8rem', background: '#8b5cf6', padding: '2px 8px', borderRadius: '12px' }}>
                         Lvl {char.level}
