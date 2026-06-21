@@ -132,6 +132,13 @@ export function useMetaLore() {
       setTxStatus('Transaction broadcasted. Awaiting block inclusion...');
 
       const receipt = await client.waitForTransactionReceipt({ hash });
+      
+      const leaderReceipt = receipt.consensus_data?.leader_receipt?.[0];
+      if (leaderReceipt && leaderReceipt.execution_result === 'ERROR') {
+        const errorMsg = leaderReceipt.genvm_result?.stderr || 'Contract execution error';
+        throw new Error(errorMsg);
+      }
+
       setTxStatus(`Success! Character minted.`);
       await fetchCharacters();
       return receipt;
@@ -166,6 +173,13 @@ export function useMetaLore() {
       setTxStatus('DM is reading and deciding character growth. Awaiting validators consensus...');
 
       const receipt = await client.waitForTransactionReceipt({ hash });
+      
+      const leaderReceipt = receipt.consensus_data?.leader_receipt?.[0];
+      if (leaderReceipt && leaderReceipt.execution_result === 'ERROR') {
+        const errorMsg = leaderReceipt.genvm_result?.stderr || 'Contract execution error';
+        throw new Error(errorMsg);
+      }
+
       setTxStatus(`Consensus reached! Character attributes upgraded.`);
       await fetchCharacters();
       return receipt;

@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 # Simple Mocking structure to simulate GenLayer runtime
 class MockMessage:
     def __init__(self, sender="0x1234567890123456789012345678901234567890"):
-        self.sender_account = sender
+        self.sender_address = sender
 
 class MockWeb:
     def render(self, url):

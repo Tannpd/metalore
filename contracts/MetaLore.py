@@ -59,7 +59,7 @@ class Contract(gl.Contract):
             raise UserError("Character name cannot be empty.")
 
         pid = self.total_characters
-        owner_str = str(gl.message.sender_account)
+        owner_str = str(gl.message.sender_address)
 
         # Store default attributes
         self.character_names[pid]           = name.strip()
@@ -106,7 +106,7 @@ class Contract(gl.Contract):
             raise UserError("Character does not exist.")
 
         owner_str = self.character_owners.get(character_id, "")
-        if str(gl.message.sender_account) != owner_str:
+        if str(gl.message.sender_address) != owner_str:
             raise UserError("You are not the owner of this character.")
 
         if len(lore_url.strip()) == 0:
