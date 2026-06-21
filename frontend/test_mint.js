@@ -11,7 +11,7 @@ async function main() {
   try {
     console.log('Sending mint transaction...');
     const hash = await client.writeContract({
-      address: '0xA3b5EC5F11220b1f685427844d96bA40EedfEac3',
+      address: '0x3BE7482a37E578274b4Dd99bb59B22816A121Aa7',
       functionName: 'mint_character',
       args: ['HeroTest'],
     });
