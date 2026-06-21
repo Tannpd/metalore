@@ -1,48 +1,63 @@
-import { useState, useEffect, useCallback } from 'react';
-import { createClient, createAccount, generatePrivateKey } from 'genlayer-js';
+import { useState, useCallback, useEffect } from 'react';
+import { createClient, createAccount } from 'genlayer-js';
 import { studionet } from 'genlayer-js/chains';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || '';
 
+let _readClient = null;
+
+function getReadClient() {
+  if (!_readClient) {
+    _readClient = createClient({ chain: studionet });
+  }
+  return _readClient;
+}
+
+function getWriteClient(account) {
+  return createClient({ chain: studionet, account });
+}
+
 export function useMetaLore() {
-  const [client, setClient] = useState(null);
-  const [account, setAccount] = useState(null);
   const [address, setAddress] = useState('');
+  const [glAccount, setGlAccount] = useState(null);
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [txHash, setTxHash] = useState('');
   const [txStatus, setTxStatus] = useState('');
 
-  // Initialize Client and Account
-  useEffect(() => {
+  // Connect Wallet — Matches HackaChain's exact logic
+  const connectWallet = useCallback(async () => {
     try {
-      const cl = createClient({
-        chain: studionet,
-        endpoint: 'https://studio.genlayer.com/api',
-      });
-      setClient(cl);
-
-      // Load/Create local developer wallet key for testing
-      let pkey = localStorage.getItem('metalore_pkey');
-      if (!pkey || pkey === 'undefined') {
-        pkey = generatePrivateKey();
-        localStorage.setItem('metalore_pkey', pkey);
+      setLoading(true);
+      setError('');
+      if (typeof window !== 'undefined' && window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const addr = accounts[0];
+        // Build GenLayer account from provider address
+        const acct = createAccount({ privateKey: undefined, address: addr });
+        setAddress(addr);
+        setGlAccount(acct);
+      } else {
+        // Ephemeral account fallback for demo
+        const acct = createAccount();
+        setAddress(acct.address);
+        setGlAccount(acct);
       }
-      const acc = createAccount(pkey);
-      setAccount(acc);
-      setAddress(acc.address);
     } catch (err) {
-      console.error('Failed to init GenLayer client:', err);
-      setError('GenLayer Client Init Failed: ' + err.message);
+      console.error('Wallet connection failed:', err);
+      setError('Wallet connection failed: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  // Fetch characters owned by address
+  // Fetch owned characters
   const fetchCharacters = useCallback(async () => {
-    if (!client || !address || !CONTRACT_ADDRESS) return;
+    if (!address || !CONTRACT_ADDRESS) return;
     setLoading(true);
     try {
+      const client = getReadClient();
       const rawIds = await client.readContract({
         address: CONTRACT_ADDRESS,
         functionName: 'get_owner_characters',
@@ -67,12 +82,13 @@ export function useMetaLore() {
     } finally {
       setLoading(false);
     }
-  }, [client, address]);
+  }, [address]);
 
   // Fetch all characters globally for Hall of Fame
   const fetchAllCharacters = useCallback(async () => {
-    if (!client || !CONTRACT_ADDRESS) return [];
+    if (!CONTRACT_ADDRESS) return [];
     try {
+      const client = getReadClient();
       const countStr = await client.readContract({
         address: CONTRACT_ADDRESS,
         functionName: 'get_character_count',
@@ -94,12 +110,12 @@ export function useMetaLore() {
       console.error('Error fetching all characters:', err);
       return [];
     }
-  }, [client]);
+  }, []);
 
   // Mint Character Transaction
   const mintCharacter = async (name) => {
-    if (!client || !account || !CONTRACT_ADDRESS) {
-      throw new Error('Client or Contract Address not configured');
+    if (!glAccount || !CONTRACT_ADDRESS) {
+      throw new Error('Wallet not connected');
     }
     setLoading(true);
     setError('');
@@ -107,8 +123,8 @@ export function useMetaLore() {
     setTxStatus('Submitting mint transaction...');
 
     try {
+      const client = getWriteClient(glAccount);
       const hash = await client.writeContract({
-        account,
         address: CONTRACT_ADDRESS,
         functionName: 'mint_character',
         args: [name],
@@ -132,8 +148,8 @@ export function useMetaLore() {
 
   // Submit Lore URL Transaction
   const submitLore = async (characterId, loreUrl) => {
-    if (!client || !account || !CONTRACT_ADDRESS) {
-      throw new Error('Client or Contract Address not configured');
+    if (!glAccount || !CONTRACT_ADDRESS) {
+      throw new Error('Wallet not connected');
     }
     setLoading(true);
     setError('');
@@ -141,8 +157,8 @@ export function useMetaLore() {
     setTxStatus('Summoning AI Dungeon Master to render and analyze story...');
 
     try {
+      const client = getWriteClient(glAccount);
       const hash = await client.writeContract({
-        account,
         address: CONTRACT_ADDRESS,
         functionName: 'submit_lore',
         args: [parseInt(characterId, 10), loreUrl],
@@ -165,10 +181,10 @@ export function useMetaLore() {
   };
 
   useEffect(() => {
-    if (client && address && CONTRACT_ADDRESS) {
+    if (address && CONTRACT_ADDRESS) {
       fetchCharacters();
     }
-  }, [client, address, fetchCharacters]);
+  }, [address, fetchCharacters]);
 
   return {
     address,
@@ -177,6 +193,7 @@ export function useMetaLore() {
     error,
     txHash,
     txStatus,
+    connectWallet,
     fetchCharacters,
     fetchAllCharacters,
     mintCharacter,

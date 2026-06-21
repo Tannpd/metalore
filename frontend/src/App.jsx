@@ -42,6 +42,7 @@ export default function App() {
     error,
     txHash,
     txStatus,
+    connectWallet,
     mintCharacter,
     submitLore,
     fetchAllCharacters,
@@ -128,13 +129,23 @@ export default function App() {
         <p className="subtitle">The On-Chain AI RPG Where Storytelling Evolves Your Character</p>
         
         {/* Connection status */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '15px' }}>
+        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center' }}>
           <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(251, 191, 36, 0.2)' }}>
             <strong>Network:</strong> GenLayer StudioNet
           </span>
-          <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(6, 182, 212, 0.2)' }}>
-            <strong>Wallet:</strong> {address ? `${address.slice(0, 8)}...${address.slice(-6)}` : 'Connecting...'}
-          </span>
+          {address ? (
+            <span className="glass-panel" style={{ padding: '8px 16px', fontSize: '0.85rem', borderColor: 'rgba(6, 182, 212, 0.2)' }}>
+              <strong>Wallet:</strong> {`${address.slice(0, 8)}...${address.slice(-6)}`}
+            </span>
+          ) : (
+            <button 
+              onClick={connectWallet} 
+              className="gold-btn"
+              style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+            >
+              Connect Wallet
+            </button>
+          )}
         </div>
       </header>
 
@@ -183,7 +194,11 @@ export default function App() {
               <Swords size={20} color="#8b5cf6" /> Your Characters
             </h3>
             
-            {characters.length === 0 ? (
+            {!address ? (
+              <div style={{ textAlign: 'center', padding: '20px 0', color: '#9ca3af' }}>
+                <p>Connect wallet to view characters.</p>
+              </div>
+            ) : characters.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '20px 0', color: '#9ca3af' }}>
                 <p>No characters minted yet.</p>
                 <button 
@@ -208,7 +223,7 @@ export default function App() {
                       transition: 'all 0.2s'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifycontent: 'space-between', alignitems: 'center' }}>
                       <strong style={{ fontSize: '1.05rem' }}>{char.name}</strong>
                       <span style={{ fontSize: '0.8rem', background: '#8b5cf6', padding: '2px 8px', borderRadius: '12px' }}>
                         Lvl {char.level}
@@ -226,7 +241,7 @@ export default function App() {
             )}
           </div>
 
-          {selectedCharacterDetails && (
+          {address && selectedCharacterDetails && (
             <div className="glass-panel pulse-glow">
               <h3 style={{ fontFamily: 'Cinzel', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Award size={20} /> Character Card
@@ -321,26 +336,35 @@ export default function App() {
                 Every epic saga starts in a smoky, crowded tavern. Gather your courage and write your name into the realm.
               </p>
 
-              <form onSubmit={handleMint} style={{ maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.95rem', fontWeight: '500' }}>
-                    What is your character's name?
-                  </label>
-                  <input 
-                    type="text" 
-                    placeholder="Enter name, e.g. Elric the Brave..."
-                    value={mintName}
-                    onChange={(e) => setMintName(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
+              {!address ? (
+                <div style={{ padding: '40px 0', textAlign: 'center' }}>
+                  <p style={{ color: '#9ca3af', marginBottom: '20px' }}>Connect your browser wallet extension to start minting character NFTs.</p>
+                  <button onClick={connectWallet} className="gold-btn">
+                    Connect Wallet
+                  </button>
                 </div>
+              ) : (
+                <form onSubmit={handleMint} style={{ maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.95rem', fontWeight: '500' }}>
+                      What is your character's name?
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="Enter name, e.g. Elric the Brave..."
+                      value={mintName}
+                      onChange={(e) => setMintName(e.target.value)}
+                      required
+                      disabled={loading}
+                    />
+                  </div>
 
-                <button type="submit" disabled={loading} style={{ alignSelf: 'flex-start' }}>
-                  {loading ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />}
-                  Mint Adventurer NFT
-                </button>
-              </form>
+                  <button type="submit" disabled={loading} style={{ alignSelf: 'flex-start' }}>
+                    {loading ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />}
+                    Mint Adventurer NFT
+                  </button>
+                </form>
+              )}
 
               {/* Status/Logs */}
               {loading && txStatus && (
@@ -375,82 +399,91 @@ export default function App() {
                 Write your character's next chapter in a public document (e.g. Medium post, GitHub Gist, or raw txt url) and submit. GenLayer's AI Dungeon Master will scrape the page and reward your decisions.
               </p>
 
-              <form onSubmit={handleLoreSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.95rem' }}>
-                      Select Adventurer
-                    </label>
-                    <select 
-                      value={selectedCharId}
-                      onChange={(e) => setSelectedCharId(e.target.value)}
-                      required
-                    >
-                      <option value="">-- Choose Character --</option>
-                      {characters.map(char => (
-                        <option key={char.id} value={char.id}>
-                          {char.name} (Lvl {char.level})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.95rem' }}>
-                      Lore URL (Raw Page/Story text)
-                    </label>
-                    <input 
-                      type="url" 
-                      placeholder="https://gist.githubusercontent.com/.../story.txt"
-                      value={loreUrl}
-                      onChange={(e) => setLoreUrl(e.target.value)}
-                      required
-                      disabled={loading}
-                    />
-                  </div>
+              {!address ? (
+                <div style={{ padding: '40px 0', textAlign: 'center' }}>
+                  <p style={{ color: '#9ca3af', marginBottom: '20px' }}>Connect your browser wallet extension to submit your story lore.</p>
+                  <button onClick={connectWallet} className="gold-btn">
+                    Connect Wallet
+                  </button>
                 </div>
-
-                <div style={{ marginTop: '10px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: '#9ca3af' }}>
-                    Quick Auto-Fill Test Stories:
-                  </label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {SAMPLE_LORES.map((sample, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        className="gold-btn"
-                        style={{
-                          fontSize: '0.85rem',
-                          padding: '8px 12px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'flex-start',
-                          background: 'rgba(251, 191, 36, 0.05)',
-                          border: '1px solid rgba(251, 191, 36, 0.2)',
-                          color: '#fbbf24',
-                          textAlign: 'left'
-                        }}
-                        onClick={() => setLoreUrl(sample.url)}
+              ) : (
+                <form onSubmit={handleLoreSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.95rem' }}>
+                        Select Adventurer
+                      </label>
+                      <select 
+                        value={selectedCharId}
+                        onChange={(e) => setSelectedCharId(e.target.value)}
+                        required
                       >
-                        <strong>{sample.title}</strong>
-                        <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 'normal' }}>
-                          {sample.description} ({sample.url.slice(0, 50)}...)
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                        <option value="">-- Choose Character --</option>
+                        {characters.map(char => (
+                          <option key={char.id} value={char.id}>
+                            {char.name} (Lvl {char.level})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                <button 
-                  type="submit" 
-                  disabled={loading || selectedCharId === ''} 
-                  style={{ alignSelf: 'flex-start', marginTop: '10px' }}
-                >
-                  {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                  Consult Dungeon Master
-                </button>
-              </form>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.95rem' }}>
+                        Lore URL (Raw Page/Story text)
+                      </label>
+                      <input 
+                        type="url" 
+                        placeholder="https://gist.githubusercontent.com/.../story.txt"
+                        value={loreUrl}
+                        onChange={(e) => setLoreUrl(e.target.value)}
+                        required
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '10px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: '#9ca3af' }}>
+                      Quick Auto-Fill Test Stories:
+                    </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {SAMPLE_LORES.map((sample, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          className="gold-btn"
+                          style={{
+                            fontSize: '0.85rem',
+                            padding: '8px 12px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            background: 'rgba(251, 191, 36, 0.05)',
+                            border: '1px solid rgba(251, 191, 36, 0.2)',
+                            color: '#fbbf24',
+                            textAlign: 'left'
+                          }}
+                          onClick={() => setLoreUrl(sample.url)}
+                        >
+                          <strong>{sample.title}</strong>
+                          <span style={{ fontSize: '0.75rem', color: '#9ca3af', fontWeight: 'normal' }}>
+                            {sample.description} ({sample.url.slice(0, 50)}...)
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    disabled={loading || selectedCharId === ''} 
+                    style={{ alignSelf: 'flex-start', marginTop: '10px' }}
+                  >
+                    {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                    Consult Dungeon Master
+                  </button>
+                </form>
+              )}
 
               {/* Status/Logs */}
               {loading && txStatus && (
@@ -476,7 +509,7 @@ export default function App() {
               )}
 
               {/* Latest DM Feedback Parchment Scroll */}
-              {selectedCharacterDetails && selectedCharacterDetails.latest_feedback && (
+              {address && selectedCharacterDetails && selectedCharacterDetails.latest_feedback && (
                 <div 
                   className="glass-panel" 
                   style={{ 
@@ -565,7 +598,7 @@ export default function App() {
                           </td>
                           <td style={{ padding: '12px' }}>{char.lore_count}</td>
                           <td style={{ padding: '12px', fontSize: '0.8rem', color: '#9ca3af' }}>
-                            {char.owner.slice(0, 6)}...{char.owner.slice(-4)}
+                            {char.owner ? `${char.owner.slice(0, 6)}...${char.owner.slice(-4)}` : '-'}
                           </td>
                         </tr>
                       ))}
