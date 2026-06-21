@@ -14,6 +14,8 @@ function getReadClient() {
 }
 
 function getWriteClient(account) {
+  // If account is a string (Ethereum address from MetaMask), createClient uses window.ethereum provider.
+  // If account is a local account object, it signs locally.
   return createClient({ chain: studionet, account });
 }
 
@@ -26,7 +28,7 @@ export function useMetaLore() {
   const [txHash, setTxHash] = useState('');
   const [txStatus, setTxStatus] = useState('');
 
-  // Connect Wallet — Matches HackaChain's exact logic
+  // Connect Wallet
   const connectWallet = useCallback(async () => {
     try {
       setLoading(true);
@@ -34,12 +36,12 @@ export function useMetaLore() {
       if (typeof window !== 'undefined' && window.ethereum) {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         const addr = accounts[0];
-        // Build GenLayer account from provider address
-        const acct = createAccount({ privateKey: undefined, address: addr });
+        // Pass the address string directly as the account representation.
+        // GenLayer/Viem custom transport will route write calls to window.ethereum.
         setAddress(addr);
-        setGlAccount(acct);
+        setGlAccount(addr);
       } else {
-        // Ephemeral account fallback for demo
+        // Ephemeral local account fallback
         const acct = createAccount();
         setAddress(acct.address);
         setGlAccount(acct);
