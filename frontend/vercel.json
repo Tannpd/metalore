@@ -1,0 +1,5 @@
+{
+  "env": {
+    "VITE_CONTRACT_ADDRESS": "0x7dE4ccef0515CB4c7eDa60b9eE0226a21c7F6e83"
+  }
+}

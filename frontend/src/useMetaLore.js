@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { createClient, createAccount } from 'genlayer-js';
+import { createClient, createAccount, generatePrivateKey } from 'genlayer-js';
 import { studionet } from 'genlayer-js/chains';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || '';
@@ -25,9 +25,8 @@ export function useMetaLore() {
 
       // Load/Create local developer wallet key for testing
       let pkey = localStorage.getItem('metalore_pkey');
-      if (!pkey) {
-        const acc = createAccount();
-        pkey = acc.privateKey;
+      if (!pkey || pkey === 'undefined') {
+        pkey = generatePrivateKey();
         localStorage.setItem('metalore_pkey', pkey);
       }
       const acc = createAccount(pkey);
