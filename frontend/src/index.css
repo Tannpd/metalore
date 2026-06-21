@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cinzel:wght@500;700;900&display=swap');
+
+:root {
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1a1230 0%, #0b0713 100%);
+  --panel-bg: rgba(20, 15, 35, 0.65);
+  --panel-border: rgba(139, 92, 246, 0.25);
+  --accent-neon: #8b5cf6;
+  --accent-cyan: #06b6d4;
+  --accent-gold: #fbbf24;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --glass-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-blur: blur(12px);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-gradient);
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* Glassmorphism Panel base */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--glass-glow);
+  border-radius: 16px;
+  padding: 24px;
+  transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+  border-color: rgba(6, 182, 212, 0.35);
+  box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.15);
+}
+
+/* Typography styles */
+h1, h2, h3, .rpg-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+}
+
+/* Custom layout scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(11, 7, 19, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-neon);
+  border-radius: 4px;
+}
+
+/* Base interactive elements */
+input[type="text"], input[type="url"], select {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(10, 8, 20, 0.8);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+input[type="text"]:focus, input[type="url"]:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+}
+
+button {
+  background: linear-gradient(135deg, var(--accent-neon) 0%, #6366f1 100%);
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  justify-content: center;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+  filter: brightness(1.1);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+button.gold-btn {
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #d97706 100%);
+  color: #0b0713;
+}
+button.gold-btn:hover {
+  box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
+}
+
+/* Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 3s infinite;
+}
+
+/* Utility layout classes */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-top: 8px;
+}
+
+/* RPG Stats display */
+.stat-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.stat-bar-outer {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stat-bar-inner {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease-out;
+}
+
+.strength-bar { background: #ef4444; }
+.wisdom-bar { background: #3b82f6; }
+.agility-bar { background: #10b981; }
+.vitality-bar { background: #f59e0b; }
+
+/* Grid alignments */
+.rpg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .rpg-grid {
+    grid-template-columns: 350px 1fr;
+  }
+}
+
+/* Navigation tabs */
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 12px;
+}
+
+.tab-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.tab-btn:hover, .tab-btn.active {
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+}
+
+.tab-btn.active {
+  border-bottom: 2px solid var(--accent-cyan);
+}
