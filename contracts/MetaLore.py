@@ -49,6 +49,7 @@ class Contract(gl.Contract):
     # ═══════════════════════════════════════════════════════════════════
     # PUBLIC METHOD: MINT CHARACTER
     # ═══════════════════════════════════════════════════════════════════
+    @gl.public.write
     def mint_character(self, name: str) -> int:
         """
         Mint a new RPG character with default base stats.
@@ -90,6 +91,7 @@ class Contract(gl.Contract):
     # ═══════════════════════════════════════════════════════════════════
     # PUBLIC METHOD: SUBMIT LORE (AI DM NON-DETERMINISTIC EVALUATION)
     # ═══════════════════════════════════════════════════════════════════
+    @gl.public.write
     def submit_lore(self, character_id: int, lore_url: str) -> None:
         """
         Submit a new story chapter for a character via a URL.
@@ -355,6 +357,7 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
     # ═══════════════════════════════════════════════════════════════════
     # READ-ONLY VIEW METHODS
     # ═══════════════════════════════════════════════════════════════════
+    @gl.public.view
     def get_character(self, character_id: int) -> str:
         """
         Retrieve JSON representation of a character.
@@ -377,12 +380,14 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
             "latest_lore_url": self.character_latest_lore_url.get(character_id, "")
         })
 
+    @gl.public.view
     def get_character_count(self) -> int:
         """
         Returns the total number of characters minted.
         """
         return int(self.total_characters)
 
+    @gl.public.view
     def get_owner_characters(self, owner: str) -> str:
         """
         Returns a JSON list of character IDs owned by the specified owner string.
