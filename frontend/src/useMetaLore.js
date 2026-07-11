@@ -14,6 +14,13 @@ function getReadClient() {
 }
 
 function getWriteClient(account) {
+  if (typeof account === 'string') {
+    return createClient({
+      chain: studionet,
+      account,
+      provider: window.ethereum,
+    });
+  }
   return createClient({ chain: studionet, account });
 }
 
@@ -123,6 +130,12 @@ export function useMetaLore() {
 
     try {
       const client = getWriteClient(glAccount);
+      
+      // Ensure wallet is on the correct GenLayer network before signing
+      if (typeof glAccount === 'string') {
+        await client.connect();
+      }
+
       const hash = await client.writeContract({
         address: CONTRACT_ADDRESS,
         functionName: 'mint_character',
@@ -164,6 +177,12 @@ export function useMetaLore() {
 
     try {
       const client = getWriteClient(glAccount);
+      
+      // Ensure wallet is on the correct GenLayer network before signing
+      if (typeof glAccount === 'string') {
+        await client.connect();
+      }
+
       const hash = await client.writeContract({
         address: CONTRACT_ADDRESS,
         functionName: 'submit_lore',
