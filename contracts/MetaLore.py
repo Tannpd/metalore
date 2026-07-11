@@ -183,21 +183,21 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
   "dm_feedback": "<str>"
 }}"""
 
-            # Run LLM
-            raw_output: str = gl.nondet.exec_prompt(dm_prompt)
-
-            # Clean markdown JSON formatting if any
-            cleaned = raw_output.strip()
-            if cleaned.startswith("```"):
-                lines = cleaned.split("\n")
-                inner_lines = []
-                for line in lines[1:]:
-                    if line.strip() == "```":
-                        break
-                    inner_lines.append(line)
-                cleaned = "\n".join(inner_lines).strip()
-
             try:
+                # Run LLM
+                raw_output: str = gl.nondet.exec_prompt(dm_prompt)
+
+                # Clean markdown JSON formatting if any
+                cleaned = raw_output.strip()
+                if cleaned.startswith("```"):
+                    lines = cleaned.split("\n")
+                    inner_lines = []
+                    for line in lines[1:]:
+                        if line.strip() == "```":
+                            break
+                        inner_lines.append(line)
+                    cleaned = "\n".join(inner_lines).strip()
+
                 parsed = json.loads(cleaned)
                 str_g = max(0, min(5, int(parsed.get("strength_gained", 0))))
                 wis_g = max(0, min(5, int(parsed.get("wisdom_gained", 0))))
@@ -234,15 +234,15 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
                     "dm_feedback": str(parsed.get("dm_feedback", "The DM records your adventure."))[:400]
                 })
 
-            except Exception as parse_err:
+            except Exception as err:
                 return json.dumps({
-                    "error": f"JSON_PARSE_FAILED: {str(parse_err)}",
+                    "error": f"LLM_EVALUATION_FAILED: {str(err)}",
                     "strength_gained": 1,
                     "wisdom_gained": 0,
                     "agility_gained": 0,
                     "vitality_gained": 0,
                     "new_trait": "",
-                    "dm_feedback": "The DM found your chronicles confusing, but you gained +1 Strength from traversing the rough terrain."
+                    "dm_feedback": "The Dungeon Master is momentarily meditating. You rested in the Tavern and gained +1 Strength from physical training."
                 })
 
         def validator_fn(leader_result: str) -> bool:
