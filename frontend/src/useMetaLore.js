@@ -40,13 +40,13 @@ export function useMetaLore() {
       setError('');
       if (typeof window !== 'undefined' && window.ethereum) {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const addr = accounts[0].toLowerCase(); // Convert to lowercase to match str(gl.message.sender_account)
+        const addr = accounts[0]; // Keep native checksummed casing to match str(gl.message.sender_address)
         setAddress(addr);
         setGlAccount(addr);
       } else {
         // Ephemeral local account fallback
         const acct = createAccount();
-        const addr = acct.address.toLowerCase();
+        const addr = acct.address;
         setAddress(addr);
         setGlAccount(acct);
       }
