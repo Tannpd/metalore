@@ -19,17 +19,17 @@ import {
 const SAMPLE_LORES = [
   {
     title: "⚔️ Chapter 1: The Dragon's Cave (Combat/Strength)",
-    url: "https://raw.githubusercontent.com/Tannpd/hackachain/main/README.md", // Use existing file as valid scraper target
+    url: "https://raw.githubusercontent.com/Tannpd/hackachain/master/README.md", // Use existing file as valid scraper target
     description: "A story about confronting a dragon with raw physical power and shield defenses."
   },
   {
     title: "🧩 Chapter 2: The Sphinx's Enigma (Wisdom/Riddles)",
-    url: "https://raw.githubusercontent.com/Tannpd/metalore/main/README.md", // Will deploy MetaLore soon
+    url: "https://raw.githubusercontent.com/Tannpd/metalore/master/README.md", // Will deploy MetaLore soon
     description: "An intellectual challenge solving ancient magical inscriptions and riddle seals."
   },
   {
     title: "💨 Chapter 3: Escape from the Dungeon (Agility/Stealth)",
-    url: "https://raw.githubusercontent.com/Tannpd/hackachain/main/frontend/index.html",
+    url: "https://raw.githubusercontent.com/Tannpd/hackachain/master/frontend/index.html",
     description: "A fast-paced escape navigating dart traps and slipping past sleeping guards."
   }
 ];
