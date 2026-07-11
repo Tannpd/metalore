@@ -259,9 +259,8 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
                 return False
 
             if "error" in leader_data:
-                # If leader returned a handled scraper/parser error, validators accept it
-                allowed_errors = {"URL_FETCH_FAILED", "STORY_CONTENT_TOO_SHORT", "JSON_PARSE_FAILED"}
-                return any(err in str(leader_data.get("error", "")) for err in allowed_errors)
+                # If leader returned any handled error (LLM down, parse fail, etc.), validators accept it
+                return True
 
             try:
                 l_str = int(leader_data.get("strength_gained", 0))

@@ -192,9 +192,24 @@ export function useMetaLore() {
       setTxHash(hash);
       setTxStatus('DM is reading and deciding character growth. Awaiting validators consensus...');
 
-      const receipt = await client.waitForTransactionReceipt({ hash });
-      
-      const leaderReceipt = receipt.consensus_data?.leader_receipt?.[0];
+      let receipt;
+      try {
+        receipt = await client.waitForTransactionReceipt({ hash, timeout: 120_000 });
+      } catch (timeoutErr) {
+        // Timed out — transaction may be FINALIZED as Undetermined
+        // Refresh characters anyway to show any partial updates
+        await fetchCharacters();
+        const isTimeout = timeoutErr?.message?.includes('Timed out') || timeoutErr?.message?.includes('timeout');
+        if (isTimeout) {
+          setTxStatus('⚠️ Consensus timed out. The network may be busy — your adventure was recorded but stats may not update immediately.');
+          setError('Consensus Undetermined: The GenLayer network validators could not reach agreement this round. Please try again in a moment.');
+          setLoading(false);
+          return null;
+        }
+        throw timeoutErr;
+      }
+
+      const leaderReceipt = receipt?.consensus_data?.leader_receipt?.[0];
       if (leaderReceipt && leaderReceipt.execution_result === 'ERROR') {
         const errorMsg = leaderReceipt.genvm_result?.stderr || 'Contract execution error';
         throw new Error(errorMsg);
@@ -212,6 +227,7 @@ export function useMetaLore() {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     if (address && CONTRACT_ADDRESS) {
