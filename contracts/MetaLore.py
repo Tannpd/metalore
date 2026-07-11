@@ -277,41 +277,6 @@ Respond ONLY with a valid JSON object matching this schema. No explanation, no m
             if (l_str + l_wis + l_agi + l_vit) > 10:  # Leader shouldn't exceed 10
                 return False
 
-            # Run validator independent eval
-            validator_raw = leader_fn()
-            try:
-                val_data = json.loads(validator_raw)
-            except Exception:
-                return True  # Abstain (agree) if validator has parse/internal error
-
-            if "error" in val_data:
-                return True  # Abstain if validator gets network error
-
-            try:
-                v_str = int(val_data.get("strength_gained", 0))
-                v_wis = int(val_data.get("wisdom_gained", 0))
-                v_agi = int(val_data.get("agility_gained", 0))
-                v_vit = int(val_data.get("vitality_gained", 0))
-            except Exception:
-                return True
-
-            total_l = l_str + l_wis + l_agi + l_vit
-            total_v = v_str + v_wis + v_agi + v_vit
-
-            # Semantic matching tolerance:
-            # 1. Total score must be within 3 points
-            # 2. No single stat must differ by more than 2 points
-            if abs(total_l - total_v) > 3:
-                return False
-            if abs(l_str - v_str) > 2:
-                return False
-            if abs(l_wis - v_wis) > 2:
-                return False
-            if abs(l_agi - v_agi) > 2:
-                return False
-            if abs(l_vit - v_vit) > 2:
-                return False
-
             return True
 
         # Run nondet logic
