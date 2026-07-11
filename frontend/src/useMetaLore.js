@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { createClient, createAccount } from 'genlayer-js';
 import { studionet } from 'genlayer-js/chains';
+import { getAddress } from 'viem';
 
 const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || '';
 
@@ -40,13 +41,13 @@ export function useMetaLore() {
       setError('');
       if (typeof window !== 'undefined' && window.ethereum) {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const addr = accounts[0]; // Keep native checksummed casing to match str(gl.message.sender_address)
+        const addr = getAddress(accounts[0]); // Force checksummed mixed-casing to match str(gl.message.sender_address)
         setAddress(addr);
         setGlAccount(addr);
       } else {
         // Ephemeral local account fallback
         const acct = createAccount();
-        const addr = acct.address;
+        const addr = getAddress(acct.address);
         setAddress(addr);
         setGlAccount(acct);
       }
