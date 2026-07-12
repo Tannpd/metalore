@@ -40,17 +40,27 @@ export function useMetaLore() {
       setLoading(true);
       setError('');
       if (typeof window !== 'undefined' && window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const addr = getAddress(accounts[0]); // Force checksummed mixed-casing to match str(gl.message.sender_address)
-        setAddress(addr);
-        setGlAccount(addr);
-      } else {
-        // Ephemeral local account fallback
-        const acct = createAccount();
-        const addr = getAddress(acct.address);
-        setAddress(addr);
-        setGlAccount(acct);
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const addr = getAddress(accounts[0]); // Force checksummed mixed-casing to match str(gl.message.sender_address)
+          
+          // Test snap connection. If it fails, fallback to Demo Wallet.
+          const client = getWriteClient(addr);
+          await client.connect();
+
+          setAddress(addr);
+          setGlAccount(addr);
+          return;
+        } catch (walletErr) {
+          console.warn('MetaMask Snap not supported or connection failed, using Demo Wallet:', walletErr);
+        }
       }
+      
+      // Ephemeral local account fallback
+      const acct = createAccount();
+      const addr = getAddress(acct.address);
+      setAddress(addr);
+      setGlAccount(acct);
     } catch (err) {
       console.error('Wallet connection failed:', err);
       setError('Wallet connection failed: ' + err.message);

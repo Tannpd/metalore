@@ -23,3 +23,6 @@ __pycache__/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Private deploy key - NEVER commit!
+.env.deploy
